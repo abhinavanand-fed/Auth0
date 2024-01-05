@@ -1,0 +1,4 @@
+{
+  "domain": "process.env.DOMAIN_",
+  "clientId": "process.env.CLIENT_ID"
+}
