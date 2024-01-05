@@ -6,7 +6,7 @@ const router = {
   "/login": () => login()
 };
 
-//Declare helper functions
+// Declare helper functions
 
 /**
  * Iterates over the elements matching 'selector' and passes them
@@ -76,9 +76,15 @@ const updateUI = async () => {
       eachElement(".user-email", (e) => (e.innerText = user.email));
       eachElement(".auth-invisible", (e) => e.classList.add("hidden"));
       eachElement(".auth-visible", (e) => e.classList.remove("hidden"));
+
+      // Show the footer since the user is authenticated
+      eachElement("#app-footer", (e) => e.style.display = 'block');
     } else {
       eachElement(".auth-invisible", (e) => e.classList.remove("hidden"));
       eachElement(".auth-visible", (e) => e.classList.add("hidden"));
+
+      // Hide the footer since the user is not authenticated
+      eachElement("#app-footer", (e) => e.style.display = 'none');
     }
   } catch (err) {
     console.log("Error updating UI!", err);

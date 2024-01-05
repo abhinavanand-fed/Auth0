@@ -73,6 +73,8 @@ const requireAuth = async (fn, targetUrl) => {
   return login(targetUrl);
 };
 
+// ... (rest of the code remains unchanged)
+
 // Will run when page finishes loading
 window.onload = async () => {
   await configureClient();
@@ -101,32 +103,38 @@ window.onload = async () => {
 
   if (isAuthenticated) {
     console.log("> User is authenticated");
-    window.history.replaceState({}, document.title, window.location.pathname);
+
+    // Get the target URL from the app state if available
+    const targetUrl = window.location.pathname;
+
+    // Redirect to the target URL after successful login
+    await login(targetUrl);
+
+    // You can remove the line below if you don't want to update the UI immediately
     updateUI();
-    return;
-  }
+  } else {
+    console.log("> User not authenticated");
 
-  console.log("> User not authenticated");
+    const query = window.location.search;
+    const shouldParseResult = query.includes("code=") && query.includes("state=");
 
-  const query = window.location.search;
-  const shouldParseResult = query.includes("code=") && query.includes("state=");
+    if (shouldParseResult) {
+      console.log("> Parsing redirect");
+      try {
+        const result = await auth0Client.handleRedirectCallback();
 
-  if (shouldParseResult) {
-    console.log("> Parsing redirect");
-    try {
-      const result = await auth0Client.handleRedirectCallback();
+        if (result.appState && result.appState.targetUrl) {
+          showContentFromUrl(result.appState.targetUrl);
+        }
 
-      if (result.appState && result.appState.targetUrl) {
-        showContentFromUrl(result.appState.targetUrl);
+        console.log("Logged in!");
+      } catch (err) {
+        console.log("Error parsing redirect:", err);
       }
 
-      console.log("Logged in!");
-    } catch (err) {
-      console.log("Error parsing redirect:", err);
+      window.history.replaceState({}, document.title, "/");
     }
 
-    window.history.replaceState({}, document.title, "/");
+    updateUI();
   }
-
-  updateUI();
 };
